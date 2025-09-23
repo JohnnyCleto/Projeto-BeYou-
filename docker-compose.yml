@@ -1,0 +1,41 @@
+services:
+  mongo:
+    image: mongo:7
+    container_name: mongo
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: beyou
+      MONGO_INITDB_ROOT_PASSWORD: beyou123
+      MONGO_INITDB_DATABASE: beyou
+    volumes:
+      - mongo_data:/data/db
+    healthcheck:
+      test: ["CMD-SHELL", "mongosh --quiet --eval 'db.runCommand({ ping: 1 })' || exit 1"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  api:
+    build:
+      context: ./backend
+    container_name: fastapi-mongo
+    restart: unless-stopped
+    env_file:
+      - ./backend/.env
+    environment:
+      # usado pela app, sobrescreve se estiver no .env
+      MONGO_URI: mongodb://beyou:beyou123@mongo:27017
+      MONGO_DB: beyou
+    volumes:
+      - ./backend/app:/app/app:rw
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    ports:
+      - "8000:8000"
+    depends_on:
+      mongo:
+        condition: service_healthy
+
+volumes:
+  mongo_data:
