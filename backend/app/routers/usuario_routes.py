@@ -13,7 +13,19 @@ from app.models import (
 
 router = APIRouter()
 
+@router.get("/")
+async def api_root():
+    return {"message": "🚀 API FastAPI funcionando em /api/"}
+
 # ---------- USUÁRIO ----------
+@router.get("/usuarios/meu_perfil", response_model=UsuarioOut)
+async def meu_perfil():
+    # Exemplo: pegar o usuário de teste
+    usuario = await crud.buscar_usuario("id_teste")  # substitua pela lógica real
+    if not usuario:
+        raise HTTPException(status_code=404, detail="Usuário não encontrado")
+    return usuario
+
 @router.post("/usuarios", response_model=UsuarioOut, status_code=201)
 async def criar_usuario_route(usuario: UsuarioIn):
     created = await crud.criar_usuario(usuario.dict())
