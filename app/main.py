@@ -44,13 +44,13 @@ async def shutdown_event():
 # =========================
 
 # Caminho absoluto para a pasta de build do React
-frontend_build_path = os.path.join(os.path.dirname(__file__), "static")
+# frontend_build_path = os.path.join(os.path.dirname(__file__), "frontstatic")
 
 # Serve os arquivos estáticos (JS, CSS, imagens, etc.)
-app.mount("/static", StaticFiles(directory=frontend_build_path), name="static")
+# app.mount("/frontstatic", StaticFiles(directory=frontend_build_path), name="frontstatic")
 
 # Serve index.html na raiz
-@app.get("/")
+""" @app.get("/")
 async def serve_react_index():
     index_file = os.path.join(frontend_build_path, "index.html")
     if os.path.exists(index_file):
@@ -63,7 +63,7 @@ async def serve_react_spa(full_path: str):
     index_file = os.path.join(frontend_build_path, "index.html")
     if os.path.exists(index_file):
         return FileResponse(index_file)
-    return {"detail": "index.html não encontrado — certifique-se de que o React foi buildado corretamente."}
+    return {"detail": "index.html não encontrado — certifique-se de que o React foi buildado corretamente."} """
 
 # =========================
 # React Dev Mode Info (opcional)

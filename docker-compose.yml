@@ -1,5 +1,3 @@
-version: "3.9"
-
 services:
   mongo:
     image: mongo:7
@@ -28,10 +26,10 @@ services:
     env_file:
       - .env
     environment:
-      MONGO_URI: mongodb://beyou:beyou123@mongo:27017/beyou
+      MONGO_URI: mongodb+srv://joaovitorcleto129_db_user:26052010o@cluster0.rb0y6ys.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
       MONGO_DB: beyou
     volumes:
-      - ./app:/app/app:rw
+     - ./app:/app/app:rw
     depends_on:
       mongo:
         condition: service_healthy
@@ -39,6 +37,17 @@ services:
       - "8000:8000"
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 
+  web:
+    build:
+      context: ./front
+      dockerfile: Dockerfile
+    container_name: beyou-frontend
+    restart: unless-stopped
+    depends_on:
+      - api
+    ports:
+      - "8888:8080"
+  
 volumes:
   mongo_data:
     driver: local
