@@ -1,3 +1,4 @@
+# app/main.py
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -12,8 +13,9 @@ app = FastAPI(title="BeYou - FastAPI + MongoDB")
 # Middleware CORS
 # =========================
 origins = [
-    "http://localhost:3000",  # React Dev
-    "http://localhost:3001",  # alternativa
+    "http://localhost:3000",  # Frontend React Dev
+    "http://localhost:8888",  # Frontend Nginx Prod
+    "*" # Permissão ampla se necessário no ambiente dev/teste
 ]
 
 app.add_middleware(
@@ -26,10 +28,16 @@ app.add_middleware(
 # =========================
 # Rotas da API
 # =========================
-app.include_router(usuario_routes.router, prefix="/api", tags=["API"])
-app.include_router(carrinho.router)
-app.include_router(pedidos.router)
-app.include_router(auth.router)
+# =========================
+# 2. Rotas da API
+# =========================
+# Incluindo a rota 'auth' que criamos
+app.include_router(auth.router, prefix="/api", tags=["Autenticação"])
+
+# Incluindo as rotas placeholders (Remova-as quando tiver os arquivos reais)
+app.include_router(usuario_routes, prefix="/api", tags=["Usuários"])
+app.include_router(carrinho, prefix="/api", tags=["Carrinho"])
+app.include_router(pedidos, prefix="/api", tags=["Pedidos"])
 
 
 # =========================
@@ -79,6 +87,27 @@ async def react_dev_info():
     }
 
 # rota health
+# health check/info
 @app.get("/")
 async def root():
-    return {"status": "ok"}
+    return {"status": "ok", "service": "backend"}
+
+# Se o diretório de build existir, monta as rotas estáticas e SPA fallback
+if os.path.isdir(FRONTEND_BUILD_DIR):
+    print(f"INFO: Montando arquivos estáticos do frontend em: {FRONTEND_BUILD_DIR}")
+    
+    # Monta os arquivos estáticos (js, css, imagens)
+    app.mount("/static", StaticFiles(directory=os.path.join(FRONTEND_BUILD_DIR, "static")), name="static")
+    
+    # Monta arquivos na raiz (logo, manifest, etc.)
+    app.mount("/", StaticFiles(directory=FRONTEND_BUILD_DIR), name="frontend_root")
+    
+    # Rota de fallback para SPA (Single Page Application)
+    @app.get("/{full_path:path}")
+    async def serve_react_spa(full_path: str):
+        index_file = os.path.join(FRONTEND_BUILD_DIR, "index.html")
+        if os.path.exists(index_file):
+            return FileResponse(index_file)
+        return {"detail": "Frontend index.html não encontrado."}
+else:
+    print("WARNING: Diretório 'frontstatic' não encontrado. Servindo apenas a API.")

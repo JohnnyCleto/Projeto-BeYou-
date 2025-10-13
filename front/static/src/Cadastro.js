@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios"; // Importação do axios
 import {
   BackgroundImage,
   Formulario,
@@ -11,6 +12,8 @@ import {
   CheckboxLink,
   BotaoCadastrar
 } from "./components/cadastroestrutura";
+
+const API_BASE_URL = "http://localhost:8888/api";
 
 const Cadastro = () => {
   const [formData, setFormData] = useState({
@@ -31,14 +34,41 @@ const Cadastro = () => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (formData.senha !== formData.confirmarSenha) {
       alert("As senhas não coincidem");
       return;
     }
-    alert("Cadastro realizado com sucesso!");
-    navigate("/login");
+    if (!formData.concordo) {
+        alert("Você deve concordar com os termos de uso.");
+        return;
+    }
+
+    try {
+        // Objeto a ser enviado, excluindo 'confirmarSenha' e 'concordo'
+        const dadosParaAPI = {
+            nome: formData.nome,
+            email: formData.email,
+            senha: formData.senha,
+            // outros campos necessários
+        };
+
+        // Requisição POST para cadastro
+        await axios.post(`${API_BASE_URL}/cadastro`, dadosParaAPI);
+
+        alert("Cadastro realizado com sucesso! Redirecionando para o Login.");
+        navigate("/login");
+
+    } catch (error) {
+        console.error("Erro no cadastro:", error);
+        // Exemplo de tratamento de erro específico da API
+        if (error.response && error.response.status === 409) {
+            alert("E-mail já cadastrado. Tente fazer o login.");
+        } else {
+            alert("Erro ao realizar cadastro. Tente novamente.");
+        }
+    }
   };
 
   return (
@@ -51,7 +81,7 @@ const Cadastro = () => {
         <Input type="text" placeholder="Digite seu nome" name="nome" required value={formData.nome} onChange={handleChange} />
 
         <label htmlFor="email"><b>E-mail</b></label>
-        <Input type="text" placeholder="Digite seu e-mail" name="email" required value={formData.email} onChange={handleChange} />
+        <Input type="email" placeholder="Digite seu e-mail" name="email" required value={formData.email} onChange={handleChange} />
         
         <label htmlFor="senha"><b>Senha</b></label>
         <Input type="password" placeholder="Digite sua senha" name="senha" required value={formData.senha} onChange={handleChange} />
