@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
-from app.routes import carrinho, pedidos, usuario_routes
+from app.routes import auth, carrinho, pedidos, usuario_routes
 from app import db as db_module
 import os
 
@@ -29,6 +29,8 @@ app.add_middleware(
 app.include_router(usuario_routes.router, prefix="/api", tags=["API"])
 app.include_router(carrinho.router)
 app.include_router(pedidos.router)
+app.include_router(auth.router)
+
 
 # =========================
 # MongoDB Startup/Shutdown
@@ -75,3 +77,8 @@ async def react_dev_info():
     return {
         "message": "Modo de desenvolvimento: acesse http://localhost:3000 para o frontend React (dev server)."
     }
+
+# rota health
+@app.get("/")
+async def root():
+    return {"status": "ok"}
