@@ -1,6 +1,13 @@
 import styled from "styled-components";
 import { createGlobalStyle } from 'styled-components';
 
+const Topo = styled.div`
+  width: 100%;
+  height: 80px;
+  background-color: #ffc9e9;
+`;
+
+
 const Background = styled.div`
     background-color:rgb(255, 228, 230);
 `;
@@ -433,6 +440,7 @@ export {
   VoceSabia,
   VoceSabiaImg,
   HamburgerMenu,
+  Topo,
   Footer,
   ConteudoFooter,
   Coluna,

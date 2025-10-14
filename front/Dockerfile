@@ -1,41 +1,35 @@
 # ==============================
-# Etapa 2 — Build do Frontend
+# Etapa 1 — Build do Frontend (React + Vite)
 # ==============================
 FROM node:20-alpine AS frontend-builder
 
-# Diretório exclusivo para o build do frontend
+# Define o diretório de trabalho dentro do container
 WORKDIR /app
 
-# Copia os arquivos de dependência do React
-COPY static/package.json ./
-COPY static/package-lock.json ./
+# Copia os arquivos de dependência primeiro (para cache eficiente)
+COPY static/package.json static/package-lock.json ./
 
-# Instala as dependências do frontend
-RUN npm install --legacy-peer-deps
+# Instala dependências do frontend
+RUN npm ci
 
-# Copia os arquivos do frontend (src e public)
-COPY static/public ./public
-COPY static/src ./src
+# Copia todo o conteúdo do frontend (src, public, index.html, etc)
+COPY static/ .
 
-# Gera o build de produção do React
+# Gera o build de produção do Vite
 RUN npm run build
 
 # ==============================
-# Etapa 3 — Servindo com Nginx
+# Etapa 2 — Servindo com Nginx
 # ==============================
-# Usa a imagem oficial do Nginx
 FROM nginx:alpine
 
 # Remove o arquivo de configuração padrão do Nginx
 RUN rm /etc/nginx/conf.d/default.conf
 
-# Copia os arquivos de build da etapa anterior para o diretório de serviço do Nginx
-# O Nginx por padrão serve arquivos de /usr/share/nginx/html
-COPY --from=frontend-builder /app/build /usr/share/nginx/html
+# Copia o build gerado para o diretório padrão do Nginx
+COPY --from=frontend-builder /app/dist /usr/share/nginx/html
 
-# Copia um arquivo de configuração customizado do Nginx
-# OBS: Você deve criar o arquivo 'nginx.conf' na mesma pasta do Dockerfile
-# para que essa linha funcione corretamente.
+# Copia o arquivo customizado de configuração do Nginx
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 # Expõe a porta padrão do Nginx
