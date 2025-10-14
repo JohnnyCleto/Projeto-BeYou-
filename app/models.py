@@ -7,14 +7,15 @@ from datetime import datetime
 class IDModel(BaseModel):
     id: Optional[str] = Field(None, alias="_id")
 
-# Usuario input for registration
+# -------------------------
+# Usuário
+# -------------------------
 class UsuarioIn(BaseModel):
     nome: str
     email: EmailStr
     senha: str
     role: Optional[str] = "user"  # "user", "loja", "admin"
 
-# Usuario output (não expõe senha)
 class UsuarioOut(BaseModel):
     id: Optional[str] = Field(None, alias="_id")
     nome: str
@@ -22,7 +23,21 @@ class UsuarioOut(BaseModel):
     role: Optional[str] = "user"
     criadoEm: Optional[datetime] = None
 
-# Modelos para token
+# -------------------------
+# Modelos para cadastro/login
+# -------------------------
+class CadastroModel(BaseModel):
+    nome: str
+    email: EmailStr
+    senha: str
+
+class LoginModel(BaseModel):
+    email: EmailStr
+    senha: str
+
+# -------------------------
+# Token JWT
+# -------------------------
 class Token(BaseModel):
     access_token: str
     token_type: str
@@ -32,7 +47,9 @@ class TokenData(BaseModel):
     email: Optional[str] = None
     role: Optional[str] = None
 
+# -------------------------
 # Agendamento
+# -------------------------
 class AgendamentoIn(BaseModel):
     cliente: str
     servico: str
@@ -42,7 +59,9 @@ class AgendamentoIn(BaseModel):
 class AgendamentoOut(AgendamentoIn):
     id: Optional[str]
 
-# Notificacao
+# -------------------------
+# Notificação
+# -------------------------
 class NotificacaoIn(BaseModel):
     mensagem: str
 
@@ -51,7 +70,9 @@ class NotificacaoOut(NotificacaoIn):
     lida: Optional[bool] = False
     data: Optional[datetime] = None
 
+# -------------------------
 # Carrinho
+# -------------------------
 class CarrinhoIn(BaseModel):
     usuarioId: str
     lojaId: str
@@ -62,7 +83,9 @@ class CarrinhoIn(BaseModel):
 class CarrinhoOut(CarrinhoIn):
     id: Optional[str]
 
+# -------------------------
 # Pesquisa
+# -------------------------
 class PesquisaIn(BaseModel):
     titulo: str
     descricao: Optional[str] = None
@@ -74,7 +97,9 @@ class PesquisaOut(PesquisaIn):
     id: Optional[str]
     criadoEm: Optional[datetime] = None
 
+# -------------------------
 # Pedido
+# -------------------------
 class PedidoItem(BaseModel):
     produto: str
     quantidade: int

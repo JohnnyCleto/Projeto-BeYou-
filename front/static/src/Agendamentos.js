@@ -43,7 +43,7 @@ import {
 } from "./components/agendamentosestrutura";
 
 // URL base da sua API (exemplo)
-const API_BASE_URL = "http://localhost:8888/api";
+const API_URL = "http://localhost:8000/api";
 
 function Agendamento() {
   const navigate = useNavigate();
@@ -71,15 +71,15 @@ function Agendamento() {
     setIsLoading(true);
     try {
       // Exemplo: Buscar mapeamento de serviços e lojas
-      const lojasRes = await axios.get(`${API_BASE_URL}/servicos-lojas`);
+      const lojasRes = await axios.get(`${API_URL}/servicos-lojas`);
       setLojasPorServico(lojasRes.data.lojasPorServico || {});
 
       // Exemplo: Buscar agendamentos ativos (para o calendário e lista de "hoje")
-      const ativosRes = await axios.get(`${API_BASE_URL}/agendamentos/ativos`);
+      const ativosRes = await axios.get(`${API_URL}/agendamentos/ativos`);
       setNotifications({ hoje: ativosRes.data.agendamentos || [] });
 
       // Exemplo: Buscar histórico de agendamentos
-      const historicoRes = await axios.get(`${API_BASE_URL}/agendamentos/historico`);
+      const historicoRes = await axios.get(`${API_URL}/agendamentos/historico`);
       setAgendamentos(historicoRes.data.historico || []);
 
     } catch (error) {
@@ -127,11 +127,11 @@ function Agendamento() {
         let response;
         if (editandoId) {
             // Requisição PUT para editar
-            response = await axios.put(`${API_BASE_URL}/agendamentos/${editandoId}`, dadosAgendamento);
+            response = await axios.put(`${API_URL}/agendamentos/${editandoId}`, dadosAgendamento);
             alert("Agendamento atualizado com sucesso!");
         } else {
             // Requisição POST para novo agendamento
-            response = await axios.post(`${API_BASE_URL}/agendamentos`, dadosAgendamento);
+            response = await axios.post(`${API_URL}/agendamentos`, dadosAgendamento);
             alert("Agendamento confirmado!");
         }
         
@@ -167,7 +167,7 @@ function Agendamento() {
     if (window.confirm("Deseja cancelar este agendamento?")) {
       try {
         // Requisição DELETE
-        await axios.delete(`${API_BASE_URL}/agendamentos/${id}`);
+        await axios.delete(`${API_URL}/agendamentos/${id}`);
         
         // Atualizar estado local
         setNotifications((prev) => ({

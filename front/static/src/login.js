@@ -12,7 +12,7 @@ import {
     InputLink
 } from "./components/loginestrutura";
 
-const API_URL = "http://localhost:8888/api";
+const API_URL = "http://localhost:8000/api";
 
 const Login = () => {
   const [formData, setFormData] = useState({

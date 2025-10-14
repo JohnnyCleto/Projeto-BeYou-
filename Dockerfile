@@ -3,6 +3,14 @@
 # ==============================
 FROM python:3.11-slim AS backend
 
+# Instalar certificados e dependências SSL
+RUN apt-get update && apt-get install -y \
+    ca-certificates \
+    openssl \
+    && update-ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+
 # Define o diretório da aplicação backend
 WORKDIR /app
 

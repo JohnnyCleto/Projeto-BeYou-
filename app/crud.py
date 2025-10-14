@@ -6,14 +6,13 @@ from app.models import (
     NotificacaoIn, NotificacaoOut,
     CarrinhoIn, CarrinhoOut,
     PesquisaIn, PesquisaOut,
-    PedidoIn, PedidoOut
+    PedidoIn, PedidoOut, CadastroModel, TokenData
 )
 from bson import ObjectId
 from datetime import datetime
 
 # ===================== USUÁRIO ===================== #
 async def criar_usuario(usuario: dict):
-    # espera receber usuario com senha já hashed
     usuario["criadoEm"] = datetime.utcnow()
     result = await db.usuarios.insert_one(usuario)
     return await db.usuarios.find_one({"_id": result.inserted_id})
@@ -112,6 +111,8 @@ async def listar_pesquisas():
     return await db.pesquisas.find().to_list(1000)
 
 async def pesquisar(q: str):
-    query = {"$or": [{"titulo": {"$regex": q, "$options": "i"}},
-                      {"categoria": {"$regex": q, "$options": "i"}}]}
+    query = {"$or": [
+        {"titulo": {"$regex": q, "$options": "i"}},
+        {"categoria": {"$regex": q, "$options": "i"}}
+    ]}
     return await db.pesquisas.find(query).to_list(1000)
