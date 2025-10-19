@@ -1,11 +1,12 @@
-# app/models.py
-from pydantic import BaseModel, Field, EmailStr
+from pydantic import BaseModel, Field, EmailStr, ConfigDict
 from typing import Optional, List
 from datetime import datetime
 
 # ---- Shared / output helper ----
 class IDModel(BaseModel):
     id: Optional[str] = Field(None, alias="_id")
+
+    model_config = ConfigDict(populate_by_name=True, from_attributes=True)
 
 # -------------------------
 # Usuário
@@ -22,6 +23,8 @@ class UsuarioOut(BaseModel):
     email: EmailStr
     role: Optional[str] = "user"
     criadoEm: Optional[datetime] = None
+
+    model_config = ConfigDict(populate_by_name=True)
 
 # -------------------------
 # Modelos para cadastro/login
