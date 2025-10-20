@@ -1,176 +1,172 @@
--- Create database tables for BeYou application
-
--- Usuario table
+-- ==========================================
+-- TABELA USUÁRIO (base para clientes e lojas)
+-- ==========================================
 CREATE TABLE Usuario (
-    id INT PRIMARY KEY AUTO_INCREMENT NOT NULL,
-    nome VARCHAR(200) NOT NULL, 
-    nome_social VARCHAR(200) NOT NULL,
-    data_nascimento DATE NOT NULL,
-    cpf VARCHAR(50) NOT NULL,
-    email VARCHAR(50) NOT NULL,
-    genero VARCHAR(10) NOT NULL,
-    rg VARCHAR(20) NOT NULL,
-    telefone VARCHAR(20) NOT NULL,
-    endereco VARCHAR(200) NOT NULL,
-    senha VARCHAR(50) NOT NULL
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    nome VARCHAR(200) NOT NULL,
+    nome_social VARCHAR(200),
+    data_nascimento DATE,
+    cpf VARCHAR(50),
+    email VARCHAR(100) UNIQUE NOT NULL,
+    genero VARCHAR(20),
+    rg VARCHAR(20),
+    telefone VARCHAR(20),
+    endereco VARCHAR(200),
+    senha VARCHAR(100) NOT NULL,
+    tipo ENUM('cliente','loja') NOT NULL DEFAULT 'cliente', -- define se é loja ou cliente
+    criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- PerfilUsuario table
-CREATE TABLE PerfilUsuario (
-    id INT PRIMARY KEY AUTO_INCREMENT NOT NULL,
-    usuario_id INT,
+-- ==========================================
+-- PERFIL EXTRA PARA LOJA (dados específicos)
+-- ==========================================
+CREATE TABLE Loja (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    usuario_id INT NOT NULL UNIQUE,
+    nome_fantasia VARCHAR(200) NOT NULL,
+    cnpj VARCHAR(50) NOT NULL UNIQUE,
+    descricao TEXT,
     FOREIGN KEY (usuario_id) REFERENCES Usuario(id)
 );
 
--- UsuarioLoja table
-CREATE TABLE UsuarioLoja (
-    id INT PRIMARY KEY AUTO_INCREMENT NOT NULL,
-    nome VARCHAR(200) NOT NULL, 
-    cnpj VARCHAR(50) NOT NULL,
-    email VARCHAR(50) NOT NULL,
-    telefone VARCHAR(20) NOT NULL,
-    endereco VARCHAR(200) NOT NULL,
-    senha VARCHAR(50) NOT NULL
-);
-
--- PerfilLoja table
-CREATE TABLE PerfilLoja (
-    id INT PRIMARY KEY AUTO_INCREMENT NOT NULL,
-    usuarioloja_id INT,
-    FOREIGN KEY (usuarioloja_id) REFERENCES UsuarioLoja(id)
-);
-
--- Servico table
-CREATE TABLE Servico (
-    id INT PRIMARY KEY AUTO_INCREMENT NOT NULL,
-    loja_id INT,
-    usuario_id INT,
-    FOREIGN KEY (usuario_id) REFERENCES Usuario(id),
-    FOREIGN KEY (loja_id) REFERENCES PerfilLoja(id)
-);
-
--- Item table
-CREATE TABLE Item (
-    id INT PRIMARY KEY AUTO_INCREMENT NOT NULL,
-    loja_id INT,
-    usuario_id INT,
-    FOREIGN KEY (usuario_id) REFERENCES Usuario(id),
-    FOREIGN KEY (loja_id) REFERENCES PerfilLoja(id)
-);
-
--- Carrinho table
-CREATE TABLE Carrinho (
-    id INT PRIMARY KEY AUTO_INCREMENT NOT NULL,
-    servico_id INT,
-    item_id INT,
-    usuario_id INT,
-    loja_id INT,
-    FOREIGN KEY (servico_id) REFERENCES Servico(id),
-    FOREIGN KEY (item_id) REFERENCES Item(id),
-    FOREIGN KEY (usuario_id) REFERENCES Usuario(id),
-    FOREIGN KEY (loja_id) REFERENCES PerfilLoja(id)
-);
-
--- Agendamento table
-CREATE TABLE Agendamento (
-    id INT PRIMARY KEY AUTO_INCREMENT NOT NULL,
-    usuario_id INT,
-    loja_id INT,
-    servico_id INT,
-    FOREIGN KEY (usuario_id) REFERENCES Usuario(id),
-    FOREIGN KEY (loja_id) REFERENCES PerfilLoja(id),
-    FOREIGN KEY (servico_id) REFERENCES Servico(id)
-);
-
--- Notificacao table
-CREATE TABLE Notificacao (
-    id INT PRIMARY KEY AUTO_INCREMENT NOT NULL,
-    usuario_id INT,
-    loja_id INT,
-    servico_id INT,
-    item_id INT,
-    data_leitura DATE NOT NULL,
-    FOREIGN KEY (usuario_id) REFERENCES Usuario(id),
-    FOREIGN KEY (loja_id) REFERENCES PerfilLoja(id),
-    FOREIGN KEY (servico_id) REFERENCES Servico(id),
-    FOREIGN KEY (item_id) REFERENCES Item(id)
-);
-
--- Categoria table
+-- ==========================================
+-- CATEGORIAS (para serviços e itens)
+-- ==========================================
 CREATE TABLE Categoria (
-    id INT PRIMARY KEY AUTO_INCREMENT NOT NULL,
-    loja_id INT,
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    nome VARCHAR(100) NOT NULL,
+    descricao TEXT
+);
+
+-- ==========================================
+-- SERVIÇOS
+-- ==========================================
+CREATE TABLE Servico (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    loja_id INT NOT NULL,
+    nome VARCHAR(150) NOT NULL,
+    descricao TEXT,
+    preco DECIMAL(10,2) NOT NULL,
+    duracao_min INT,
+    ativo BOOLEAN DEFAULT TRUE,
+    FOREIGN KEY (loja_id) REFERENCES Loja(id)
+);
+
+-- ==========================================
+-- ITENS/PRODUTOS
+-- ==========================================
+CREATE TABLE Item (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    loja_id INT NOT NULL,
+    nome VARCHAR(150) NOT NULL,
+    descricao TEXT,
+    preco DECIMAL(10,2) NOT NULL,
+    estoque INT DEFAULT 0,
+    ativo BOOLEAN DEFAULT TRUE,
+    FOREIGN KEY (loja_id) REFERENCES Loja(id)
+);
+
+-- ==========================================
+-- RELAÇÃO N:N SERVIÇO x CATEGORIA
+-- ==========================================
+CREATE TABLE ServicoCategoria (
     servico_id INT,
-    item_id INT,
-    FOREIGN KEY (loja_id) REFERENCES PerfilLoja(id),
+    categoria_id INT,
+    PRIMARY KEY (servico_id, categoria_id),
     FOREIGN KEY (servico_id) REFERENCES Servico(id),
+    FOREIGN KEY (categoria_id) REFERENCES Categoria(id)
+);
+
+-- ==========================================
+-- RELAÇÃO N:N ITEM x CATEGORIA
+-- ==========================================
+CREATE TABLE ItemCategoria (
+    item_id INT,
+    categoria_id INT,
+    PRIMARY KEY (item_id, categoria_id),
+    FOREIGN KEY (item_id) REFERENCES Item(id),
+    FOREIGN KEY (categoria_id) REFERENCES Categoria(id)
+);
+
+-- ==========================================
+-- CARRINHO (N:N usuário x item/serviço)
+-- ==========================================
+CREATE TABLE Carrinho (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    usuario_id INT NOT NULL,
+    criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (usuario_id) REFERENCES Usuario(id)
+);
+
+CREATE TABLE CarrinhoItem (
+    carrinho_id INT,
+    item_id INT,
+    quantidade INT DEFAULT 1,
+    PRIMARY KEY (carrinho_id, item_id),
+    FOREIGN KEY (carrinho_id) REFERENCES Carrinho(id),
     FOREIGN KEY (item_id) REFERENCES Item(id)
 );
 
--- UsuarioFavoritoLoja table
-CREATE TABLE UsuarioFavoritoLoja (
-    id INT PRIMARY KEY AUTO_INCREMENT NOT NULL,
-    usuario_id INT,
-    loja_id INT,
-    data_adicao DATETIME,
-    FOREIGN KEY (usuario_id) REFERENCES Usuario(id),
-    FOREIGN KEY (loja_id) REFERENCES PerfilLoja(id)
+CREATE TABLE CarrinhoServico (
+    carrinho_id INT,
+    servico_id INT,
+    quantidade INT DEFAULT 1,
+    PRIMARY KEY (carrinho_id, servico_id),
+    FOREIGN KEY (carrinho_id) REFERENCES Carrinho(id),
+    FOREIGN KEY (servico_id) REFERENCES Servico(id)
 );
 
--- UsuarioServicoFavorito table
-CREATE TABLE UsuarioServicoFavorito (
-    id INT PRIMARY KEY AUTO_INCREMENT NOT NULL,
-    usuario_id INT,
-    servico_id INT,
-    data_adicao DATE,
+-- ==========================================
+-- AGENDAMENTO (usuário agenda serviço)
+-- ==========================================
+CREATE TABLE Agendamento (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    usuario_id INT NOT NULL,
+    servico_id INT NOT NULL,
+    data_horario DATETIME NOT NULL,
+    status ENUM('pendente','confirmado','cancelado','concluido') DEFAULT 'pendente',
+    criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (usuario_id) REFERENCES Usuario(id),
     FOREIGN KEY (servico_id) REFERENCES Servico(id)
 );
 
--- LojaCategoria table
-CREATE TABLE LojaCategoria (
-    id INT PRIMARY KEY AUTO_INCREMENT,
+-- ==========================================
+-- FAVORITOS (N:N)
+-- ==========================================
+CREATE TABLE UsuarioFavoritoLoja (
+    usuario_id INT,
     loja_id INT,
-    categoria_id INT,
-    FOREIGN KEY (loja_id) REFERENCES UsuarioLoja(id),
-    FOREIGN KEY (categoria_id) REFERENCES Categoria(id)
+    data_adicao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (usuario_id, loja_id),
+    FOREIGN KEY (usuario_id) REFERENCES Usuario(id),
+    FOREIGN KEY (loja_id) REFERENCES Loja(id)
 );
 
--- ServicoCategoria table
-CREATE TABLE ServicoCategoria (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    servico_id INT,
-    categoria_id INT,
-    FOREIGN KEY (servico_id) REFERENCES Servico(id),
-    FOREIGN KEY (categoria_id) REFERENCES Categoria(id)
-);
-
--- UsuarioNotificacao table
-CREATE TABLE UsuarioNotificacao (
-    id INT PRIMARY KEY AUTO_INCREMENT NOT NULL,
+CREATE TABLE UsuarioFavoritoServico (
     usuario_id INT,
     servico_id INT,
-    item_id INT,
-    data_leitura DATE NOT NULL,
-    notificacao_id INT,
-    lida BOOLEAN,
-    FOREIGN KEY (notificacao_id) REFERENCES Notificacao(id),
+    data_adicao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (usuario_id, servico_id),
     FOREIGN KEY (usuario_id) REFERENCES Usuario(id),
-    FOREIGN KEY (servico_id) REFERENCES Servico(id),
-    FOREIGN KEY (item_id) REFERENCES Item(id)
+    FOREIGN KEY (servico_id) REFERENCES Servico(id)
 );
 
--- LojaNotificacao table
-CREATE TABLE LojaNotificacao (
-    id INT PRIMARY KEY AUTO_INCREMENT NOT NULL,
-    loja_id INT,
-    servico_id INT,
-    item_id INT,
-    data_leitura DATE NOT NULL,
+-- ==========================================
+-- NOTIFICAÇÕES
+-- ==========================================
+CREATE TABLE Notificacao (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    titulo VARCHAR(150),
+    mensagem TEXT,
+    criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE UsuarioNotificacao (
+    usuario_id INT,
     notificacao_id INT,
-    lida BOOLEAN,
-    FOREIGN KEY (notificacao_id) REFERENCES Notificacao(id),
-    FOREIGN KEY (loja_id) REFERENCES PerfilLoja(id),
-    FOREIGN KEY (servico_id) REFERENCES Servico(id),
-    FOREIGN KEY (item_id) REFERENCES Item(id)
-); 
+    lida BOOLEAN DEFAULT FALSE,
+    data_leitura DATETIME,
+    PRIMARY KEY (usuario_id, notificacao_id),
+    FOREIGN KEY (usuario_id) REFERENCES Usuario(id),
+    FOREIGN KEY (notificacao_id) REFERENCES Notificacao(id)
+);

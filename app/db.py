@@ -13,7 +13,7 @@ load_dotenv()
 # -------------------------------
 MONGO_URI = os.getenv(
     "MONGO_URI",
-    "mongodb://beyou:beyou123@mongo:27017"  # default para Docker local
+    "mongodb://beyou:beyou123@mongo:27017"
 )
 MONGO_DB = os.getenv("MONGO_DB", "beyou")
 
@@ -22,13 +22,12 @@ db = None
 
 logger = logging.getLogger("uvicorn.error")
 
-
 # -------------------------------
 # Conexão com o MongoDB
 # -------------------------------
 async def connect_to_mongo(max_retries: int = 30, delay: float = 2.0):
     """
-    Conecta-se ao MongoDB com tentativas de reconexão.
+    Conecta ao MongoDB com tentativas de reconexão.
     Cria índice único para email.
     """
     global client, db
@@ -36,11 +35,11 @@ async def connect_to_mongo(max_retries: int = 30, delay: float = 2.0):
         try:
             logger.info(f"Tentando conectar ao MongoDB ({attempt}/{max_retries})...")
             client = AsyncIOMotorClient(MONGO_URI, serverSelectionTimeoutMS=5000)
-            await client.admin.command("ping")  # Testa a conexão
+            await client.admin.command("ping")
             db = client[MONGO_DB]
             logger.info(f"Conectado ao MongoDB — Banco: {MONGO_DB}")
 
-            # Cria índice único no email do usuário
+            # Índice único no email
             await db.usuarios.create_index("email", unique=True)
             return
         except (ServerSelectionTimeoutError, PyMongoError) as e:
@@ -48,7 +47,6 @@ async def connect_to_mongo(max_retries: int = 30, delay: float = 2.0):
             if attempt == max_retries:
                 raise Exception("Não foi possível conectar ao MongoDB") from e
             await asyncio.sleep(delay)
-
 
 # -------------------------------
 # Fechamento da conexão
@@ -59,14 +57,9 @@ async def close_mongo_connection():
         client.close()
         logger.info("Conexão com MongoDB encerrada.")
 
-
 # -------------------------------
 # Validação do DB antes de usar
 # -------------------------------
 def check_db():
-    """
-    Garante que o MongoDB esteja conectado antes de usar.
-    """
-    global db
     if db is None:
         raise Exception("MongoDB não conectado!")

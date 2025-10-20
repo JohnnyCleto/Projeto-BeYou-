@@ -1,6 +1,4 @@
-# app/routers/usuario_routes.py
 from fastapi import APIRouter, HTTPException, Query
-from app.models import UsuarioIn, UsuarioOut
 from typing import List
 from app import crud
 from app.models import (
@@ -11,25 +9,32 @@ from app.models import (
     PesquisaIn, PesquisaOut
 )
 
-router = APIRouter()
+router = APIRouter(prefix="/api", tags=["API"])
 
+# -------------------------------
+# ROTA RAIZ
+# -------------------------------
 @router.get("/")
 async def api_root():
     return {"message": "🚀 API FastAPI funcionando em /api/"}
 
-# ---------- USUÁRIO ----------
+# -------------------------------
+# USUÁRIOS
+# -------------------------------
 @router.get("/usuarios/meu_perfil", response_model=UsuarioOut)
 async def meu_perfil():
-    # Exemplo: pegar o usuário de teste
-    usuario = await crud.buscar_usuario("id_teste")  # substitua pela lógica real
+    usuario = await crud.buscar_usuario("id_teste")  # Substituir lógica real
     if not usuario:
         raise HTTPException(status_code=404, detail="Usuário não encontrado")
     return usuario
 
 @router.post("/usuarios", response_model=UsuarioOut, status_code=201)
 async def criar_usuario_route(usuario: UsuarioIn):
-    created = await crud.criar_usuario(usuario.dict())
-    return created
+    try:
+        created = await crud.criar_usuario(usuario.dict())
+        return created
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
 @router.get("/usuarios", response_model=List[UsuarioOut])
 async def listar_usuarios_route():
@@ -56,7 +61,9 @@ async def deletar_usuario_route(id: str):
         raise HTTPException(status_code=404, detail="Usuário não encontrado")
     return {"message": "Usuário deletado com sucesso"}
 
-# ---------- AGENDAMENTO ----------
+# -------------------------------
+# AGENDAMENTOS
+# -------------------------------
 @router.post("/agendamentos", response_model=AgendamentoOut, status_code=201)
 async def criar_agendamento_route(agendamento: AgendamentoIn):
     return await crud.criar_agendamento(agendamento.dict())
@@ -86,7 +93,9 @@ async def deletar_agendamento_route(id: str):
         raise HTTPException(status_code=404, detail="Agendamento não encontrado")
     return {"message": "Agendamento deletado com sucesso"}
 
-# ---------- NOTIFICAÇÕES ----------
+# -------------------------------
+# NOTIFICAÇÕES
+# -------------------------------
 @router.post("/notificacoes", response_model=NotificacaoOut, status_code=201)
 async def criar_notificacao_route(notificacao: NotificacaoIn):
     return await crud.criar_notificacao(notificacao.dict())
@@ -102,7 +111,9 @@ async def marcar_notificacao_lida_route(id: str):
         raise HTTPException(status_code=404, detail="Notificação não encontrada")
     return updated
 
-# ---------- CARRINHO ----------
+# -------------------------------
+# CARRINHO
+# -------------------------------
 @router.post("/carrinho", response_model=CarrinhoOut, status_code=201)
 async def adicionar_item_route(item: CarrinhoIn):
     return await crud.adicionar_item(item.dict())
@@ -125,7 +136,9 @@ async def remover_item_route(id: str):
         raise HTTPException(status_code=404, detail="Item não encontrado")
     return {"message": "Item removido do carrinho"}
 
-# ---------- PESQUISA ----------
+# -------------------------------
+# PESQUISAS
+# -------------------------------
 @router.post("/pesquisas", response_model=PesquisaOut, status_code=201)
 async def criar_pesquisa_route(item: PesquisaIn):
     return await crud.criar_pesquisa(item.dict())
@@ -137,7 +150,3 @@ async def listar_pesquisas_route():
 @router.get("/pesquisas/buscar", response_model=List[PesquisaOut])
 async def pesquisar_route(q: str = Query(..., min_length=1)):
     return await crud.pesquisar(q)
-
-@router.post("/", response_model=UsuarioOut)
-async def criar_usuario_route(usuario: UsuarioIn):
-    return await crud.criar_usuario(usuario.dict())
