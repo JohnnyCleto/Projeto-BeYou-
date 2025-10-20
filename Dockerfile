@@ -1,19 +1,27 @@
-# Dockerfile-backend
 # ==============================
-FROM python:3.12-alpine
+# Backend (FastAPI)
+# ==============================
+FROM python:3.11-slim AS backend
 
-# Diretório de trabalho do backend
+# Instalar certificados e dependências SSL
+RUN apt-get update && apt-get install -y \
+    ca-certificates \
+    openssl \
+    && update-ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+# Define o diretório da aplicação backend
 WORKDIR /app
 
-# Copia requirements.txt e instala dependências Python
-COPY app/requirements.txt ./
-RUN pip install --no-cache-dir -r requirements.txt
+# Copia e instala as dependências do Python
+COPY requirements.txt ./
+RUN pip install --upgrade pip && pip install --no-cache-dir -r requirements.txt
 
-# Copia todo o backend
+# Copia o código-fonte do backend
 COPY app/ ./app
 
-# Expõe porta do FastAPI
+# Expõe a porta padrão do FastAPI
 EXPOSE 8000
 
-# Comando padrão do backend
+# Comando para iniciar a aplicação FastAPI
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
