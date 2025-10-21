@@ -1,40 +1,42 @@
-from app.db import db
+from app.db import db, get_db
 from bson import ObjectId
 from datetime import datetime
+import logging
 
-# ===== Função auxiliar =====
-def check_db():
-    if db is None:
-        raise Exception("MongoDB não conectado!")
+logger = logging.getLogger("uvicorn.error")
 
-# ===================== USUÁRIO ===================== #
+# ===================== USUÁRIOS ===================== #
 async def criar_usuario(usuario: dict):
-    check_db()
+    db = get_db()
     usuario["criadoEm"] = datetime.utcnow()
     result = await db.usuarios.insert_one(usuario)
     return await db.usuarios.find_one({"_id": result.inserted_id})
 
-async def listar_usuarios():
-    check_db()
-    return await db.usuarios.find().to_list(1000)
-
-async def buscar_usuario(id: str):
-    check_db()
-    return await db.usuarios.find_one({"_id": ObjectId(id)})
-
 async def buscar_usuario_por_email(email: str):
-    check_db()
+    db = get_db()
     return await db.usuarios.find_one({"email": email})
 
+async def buscar_usuario(id: str):
+    db = get_db()
+    return await db.usuarios.find_one({"_id": ObjectId(id)})
+
+async def listar_usuarios():
+    db = get_db()
+    return await db.usuarios.find().to_list(1000)
+
 async def atualizar_usuario(id: str, usuario: dict):
-    check_db()
+    db = get_db()
     await db.usuarios.update_one({"_id": ObjectId(id)}, {"$set": usuario})
     return await buscar_usuario(id)
 
 async def deletar_usuario(id: str):
-    check_db()
+    db = get_db()
     result = await db.usuarios.delete_one({"_id": ObjectId(id)})
     return result.deleted_count
+
+async def buscar_usuario_por_email(email: str):
+    db = get_db()
+    return await db.usuarios.find_one({"email": email})
 
 # ===================== AGENDAMENTO ===================== #
 async def criar_agendamento(agendamento: dict):

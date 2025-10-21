@@ -1,27 +1,27 @@
-# ==============================
-# Backend (FastAPI)
-# ==============================
-FROM python:3.11-slim AS backend
+# ===============================
+# Backend — FastAPI + MongoDB
+# ===============================
+FROM python:3.12-slim
 
-# Instalar certificados e dependências SSL
+WORKDIR /app
+
+# Instala dependências do sistema (certificados, build tools)
 RUN apt-get update && apt-get install -y \
+    build-essential \
     ca-certificates \
-    openssl \
+    curl \
     && update-ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
-# Define o diretório da aplicação backend
-WORKDIR /app
+# Copia os arquivos da aplicação
+COPY ./app /app/app
 
-# Copia e instala as dependências do Python
-COPY requirements.txt ./
-RUN pip install --upgrade pip && pip install --no-cache-dir -r requirements.txt
+# Instala dependências Python
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Copia o código-fonte do backend
-COPY app/ ./app
-
-# Expõe a porta padrão do FastAPI
+# Porta padrão FastAPI
 EXPOSE 8000
 
-# Comando para iniciar a aplicação FastAPI
+# Comando para rodar o app
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
