@@ -1,6 +1,15 @@
+# app/models/models.py
 from pydantic import BaseModel, Field, EmailStr, ConfigDict
 from typing import Optional, List
 from datetime import datetime
+from typing import Optional
+
+class Usuario(BaseModel):
+    id: Optional[str] = None
+    nome: str
+    email: EmailStr
+    senha: str
+
 
 # ---- Shared / output helper ----
 class IDModel(BaseModel):

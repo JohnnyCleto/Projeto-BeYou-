@@ -9,6 +9,8 @@ load_dotenv()
 MONGO_URI = os.getenv("MONGO_URI", "mongodb://localhost:27017")
 DB_NAME = os.getenv("DB_NAME", "beyou")
 
+MYSQL_URI = os.getenv("MYSQL_URI", "mysql+aiomysql://root:root@mysql:3306/beyou")
+
 SECRET_KEY = os.getenv("SECRET_KEY", "supersecretkey_change_me")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "60"))

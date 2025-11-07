@@ -62,7 +62,7 @@ const Termos = () => {
 
                         <MenuLink onClick={() => navigate("/Agendamentos")}>Agendamentos</MenuLink>
 
-                        <MenuLink onClick={() => navigate("/FAvoritos_perfil")}>Favoritos</MenuLink>
+                        <MenuLink onClick={() => navigate("/FAvoritosPerfil")}>Favoritos</MenuLink>
 
                     </Menu>
                     

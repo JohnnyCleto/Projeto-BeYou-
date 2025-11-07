@@ -34,6 +34,10 @@ const BemVindo = () => {
           <BotaoCadastrar onClick={() => navigate("/cadastro")}>
             Cadastro de Usuário
           </BotaoCadastrar>
+
+          <BotaoCadastrar onClick={() => navigate("/Login")}>
+            Login do Usuário
+          </BotaoCadastrar>
           
           <BotaoCadastrar onClick={() => navigate("/cadastroloja")}>
             Cadastro de Loja

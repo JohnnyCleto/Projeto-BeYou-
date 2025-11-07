@@ -1,328 +1,364 @@
-import styled from "styled-components";
-import { createGlobalStyle } from 'styled-components';
+import styled, { createGlobalStyle } from "styled-components";
 
+/* ===== BACKGROUND ===== */
 const Background = styled.div`
-    background-color:rgb(255, 228, 230);
+  background-color: rgba(255, 255, 255, 1);
 `;
 
+/* ===== HEADER ===== */
 const Header = styled.header`
-    background-image: url("/img/Textura_Rosa.jpg");
-    min-height: 100%; 
-    background-position: center;
-    background-repeat: no-repeat; 
-    background-size: cover;
-    position: relative;
-    color: #6c4539;
-    padding: 10px 20px;
-    display: flex; 
+  background-image: url("/img/Textura_Rosa.jpg");
+  min-height: 100%;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  position: relative;
+  color: #6c4539;
+  padding: 10px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border: 0.5px solid #6c4539;
+  flex-wrap: wrap;
+  gap: 10px;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
     align-items: center;
-    justify-content: space-between;
-    border: 0.5px solid #6c4539;
+    text-align: center;
+  }
 `;
 
 const LogoContainer = styled.div`
-    display: flex;
-    align-items: center;
+  display: flex;
+  align-items: center;
 `;
 
 const ImgLogo = styled.img`
-    width: 60px;
-    height: auto;
-    border-radius: 50%;
-    border: 2px solid #6c4539;
-    cursor: pointer;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  width: 60px;
+  height: auto;
+  border-radius: 50%;
+  border: 2px solid #6c4539;
+  cursor: pointer;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 `;
 
 const SearchBar = styled.input`
-    width: 30%;
-    padding: 10px;
-    border: 2px solid hsl(300, 99%, 64%);
-    border-radius: 20px;
-    font-size: 16px;
-    color: #6c4539;
-    outline: none;
-    background-color: rgba(255, 255, 255, 0.5);
-    backdrop-filter: blur(5px);
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  width: 30%;
+  padding: 10px;
+  border: 2px solid hsl(300, 99%, 64%);
+  border-radius: 20px;
+  font-size: 16px;
+  color: #6c4539;
+  outline: none;
+  background-color: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(5px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 
-    &::placeholder {
-        color: #6c4539;
-    }
+  &::placeholder {
+    color: #6c4539;
+  }
+
+  @media (max-width: 1024px) {
+    width: 50%;
+  }
+
+  @media (max-width: 768px) {
+    width: 80%;
+  }
 `;
 
 const Menu = styled.div`
-  overflow: hidden;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 15px;
 `;
 
 const MenuLink = styled.a`
-  float: left;
   font-size: 15px;
   color: #6c4539;
-  text-align: center;
   text-decoration: none;
   font-weight: bold;
-  border: 1px #FFC9E9;
-  display: inline-block;
-  line-height: normal;
-  margin-left: 15px;
-  margin-right: 15px;
+  transition: transform 0.2s ease-in-out;
+
   &:hover {
-    background-color: transparent;
-    background-clip: text;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: hsl(300, 99%, 64%);
-    cursor: pointer;
+    color: hsl(300, 99%, 64%);
     transform: scale(1.1);
+    cursor: pointer;
   }
 `;
 
 const Icons = styled.div`
-    display: flex;
-    overflow: hidden;
-    justify-content: flex-end;
-    gap: 16px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 16px;
+  flex-wrap: wrap;
 `;
 
 const Perfil = styled.div`
-    display: flex;
-    align-items: center;
-    overflow: hidden;
+  display: flex;
+  align-items: center;
 `;
 
 const Noticacao = styled.div`
-    display: flex;
-    align-items: center;
-    overflow: hidden;
+  display: flex;
+  align-items: center;
 `;
 
 const Sair = styled.div`
-    display: flex;
-    align-items: center;
-    overflow: hidden;
+  display: flex;
+  align-items: center;
 `;
 
 const PerfilLink = styled.a`
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 32px;
-    height: 32px;
-    cursor: pointer;
-    transition: transform 0.2s ease-in-out;
-    border: none;
-    background-color: transparent;
-    color: #6c4539;
-    overflow: hidden;
-    text-decoration: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  cursor: pointer;
+  border: none;
+  background-color: transparent;
+  color: #6c4539;
+  text-decoration: none;
+  transition: transform 0.2s ease-in-out;
 
-    &:hover {
-      transform: scale(1.1);
-      text-decoration: underline;
-      color: hsl(300, 99%, 64%);
-    }
+  &:hover {
+    transform: scale(1.1);
+    color: hsl(300, 99%, 64%);
+  }
 `;
 
-const NoticacaoLink = styled.a`
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 32px;
-    height: 32px;
-    overflow: hidden;
-    cursor: pointer;
-    transition: transform 0.2s ease-in-out;
-    border: none;
-    background-color: transparent;
-    color: #6c4539;
-    text-decoration: none;
+const NoticacaoLink = styled(PerfilLink)``;
 
-    &:hover {
-      transform: scale(1.1);
-      text-decoration: underline;
-      color: hsl(300, 99%, 64%);
-    }
-`;
-  
 const BotaoSair = styled.button`
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-    width: 32px;
-    height: 32px;
-    cursor: pointer;
-    transition: transform 0.2s ease-in-out;
-    border: none;
-    background-color: transparent;
-    color: #6c4539;
-    
-    &:hover {
-      transform: scale(1.1);
-      text-decoration: underline;
-      color: hsl(300, 99%, 64%);
-    }
+  width: 32px;
+  height: 32px;
+  cursor: pointer;
+  border: none;
+  background-color: transparent;
+  color: #6c4539;
+  transition: transform 0.2s ease-in-out;
+
+  &:hover {
+    transform: scale(1.1);
+    color: hsl(300, 99%, 64%);
+  }
 `;
 
 const Title = styled.div`
-    text-align: left;
-    color: #6c4539;
-    font-style: bold;
-    list-style: none;
-    font-size: 40px;
-    margin-bottom: 20px;
-    margin-left: 50px;
-    margin-top: 20px;
+  text-align: center;
+  color: #6c4539;
+  font-weight: bold;
+  font-size: 30px;
+  margin: 10px;
 `;
 
-/* Adicionado */
+/* ===== PERFIL ===== */
 const PerfilContainer = styled.div`
-    text-align: center;
-    background-color: #FFC9E9;
-    padding: 50px;
-    margin: 50px auto;
-    width: 50%;
-    border-radius: 20px;
-    margin-top: 75px;
+  height: 200px;
+  background-image: url("/img/perfil_fundo.jpg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  padding: 50px;
+  margin: 50px auto;
+  width: 70%;
+  border-radius: 20px;
+  margin-top: 40px;
+  margin-right: 50px;
+
+
+  @media (max-width: 1024px) {
+    width: 85%;
+  }
+
+  @media (max-width: 768px) {
+    width: 90%;
+    padding: 20px;
+  }
 `;
 
 const ImgPerfilGrande = styled.img`
-    margin-top: 0px;
-    width: 200px;
-    height: 200px;
-    border-radius: 50%;
-    border: 3px solid #6c4539;
-    backdrop-filter: blur(8px);
-    box-shadow: 0 4px 12px rgba(255, 105, 180, 0.2);
-    cursor: pointer;
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+  box-shadow: 0 4px 12px rgba(255, 105, 180, 0.2);
+  cursor: pointer;
+  transition: transform 0.2s ease-in-out;
 
-    &:hover {
-      box-shadow: 0 4px 12px rgba(255, 105, 180, 0.2);
-      transform: translateY(-2px);
-    }
-
-    &:active {
-      transform: translateY(0);
-      box-shadow: none;
-    }
+  &:hover {
+    transform: scale(1.05);
+  }
 `;
 
 const NomePerfil = styled.h1`
-    color:rgb(78, 50, 41);
-    font-size: 50px;
-    font-weight: bold;
-    margin-top: 20px;
+  color: rgb(78, 50, 41);
+  font-size: 40px;
+  font-weight: bold;
+  margin-top: 20px;
+  margin-left: -20px;
+
+  @media (max-width: 768px) {
+    font-size: 28px;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 22px;
+  }
+`;
+
+/* ===== BOTÕES DE PERFIL ===== */
+const Icones = styled.div`
+  display: flex;
+  justify-content: center;
+  margin-top: 40px;
+  flex-wrap: wrap;
+  gap: 20px;
 `;
 
 const IconeConteiner = styled.div`
-    margin-top: 50px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 150px;
-    flex-wrap: wrap;
-    overflow: auto;
-    white-space: nowrap;
-    scrollbar-width: none;
-    text-align: center;
-`;
-
-const Icones = styled.div`
-    margin-top: 0px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-wrap: wrap;
-    overflow: auto;
-    white-space: nowrap;
-    scrollbar-width: none;
-    text-align: center;
-`;
-
-const IconeImg = styled.img`
-    width: 170px;
-    height: 170px;
-    transition: transform 0.3s ease, opacity 0.3s ease;
-    backdrop-filter: blur(8px);
-    box-shadow: 0 4px 12px rgba(255, 105, 180, 0.2);
-
-    &::placeholder {
-        color: #6c4539;
-        font-style: italic;
-    }
-
-    &:focus {
-      border: 2px solid hsl(300, 99%, 64%);
-    }
-
-    &:hover {
-      box-shadow: 0 4px 12px rgba(255, 105, 180, 0.2);
-      transform: translateY(-2px);
-    }
-
-    &:active {
-      transform: translateY(0);
-      box-shadow: none;
-    }
-`;
-
-const VistoContainer = styled.div`
-    margin-top: 120px;
-    white-space: nowrap;
-    scrollbar-width: none;
-    flex-wrap: wrap;
-    display: flex;  
-`;
-
-const ImgVisto = styled.img`
-    margin-bottom: 50px;
-    width: 300px;
-    height: 300px;
-    margin-left: 75px;
-    border-radius: 20%;
-    border: solid 2px #6c4539;
-
-    &:hover {
-        filter: brightness(0.8);;
-        cursor: pointer;
-`;
-
-const VistoTexto = styled.div`
-    position: absolute;
-    top: 800px;
-    left: 50%;
-    transform: translateX(-50%);
-    color: white;
-    padding: 5px 10px;
-    font-size: 30px; /* Reduzi um pouco para melhor encaixe */
-    font-weight: bold;
-    white-space: nowrap;
-    color:rgb(78, 50, 41);
-    margin-top: 100px;
-`;
-
-const LinhaSeparadora = styled.div`
-    width: 100%;
-    height: 2px;
-    background-color: #6c4539;
-    margin: 50px auto;
-`;
-
-
-const Footer = styled.div`
-  background-color: #FFC9E9;
   display: flex;
-  color: white;
-  padding: 40px 80px;
-  display: flex; /*conteiner manipulavel*/
-  flex-wrap: wrap;
-  justify-content: space-between;
-  border: 3px solid #6c4539;
-  justify-content: space-between;
-  align-items: center;
   flex-direction: column;
+  align-items: center;
+  gap: 25px;
+  margin-top: 90px;
+  margin-right: 350px;
+`;
+
+const IconeTexto = styled.a`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 300px;
+  height: 50px;
+  border: 2px solid ${(props) => (props.$excluir ? "#ff4d6d" : "#ffb6c1")};
+  border-radius: 50px;
+  font-family: "Poppins", sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  color: ${(props) => (props.$excluir ? "#fff" : "#6c4539")};
+  background-color: ${(props) => (props.$excluir ? "#ff4d6d" : "#fff")};
+  text-decoration: none;
+  transition: all 0.2s ease-in-out;
+
+  &:hover {
+    background-color: ${(props) => (props.$excluir ? "#e63950" : "#ffe4ec")};
+    transform: scale(1.05);
+  }
+
+  @media (max-width: 480px) {
+    width: 80%;
+    font-size: 14px;
+  }
+`;
+
+/* ===== NOTIFICAÇÕES ===== */
+const NotificacoesContainer = styled.div`
+  width: 300px;
+  height: 500px;
+  background-color: #ffffff;
+  border-radius: 15px;
+  padding: 20px;
+  box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.1);
+  position: absolute;
+  top: 50px;
+  left: 0;
+  z-index: 10;
+
+  @media (max-width: 480px) {
+    width: 90%;
+    height: auto;
+    top: 20px;
+    left: 5%;
+  }
+`;
+
+const FiltroNotificacoes = styled.div`
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 15px;
+`;
+
+const FiltroBotao = styled.button`
+  background-color: #ff69b4;
+  color: #fff;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+
+  &:hover {
+    background-color: #ff1493;
+  }
+`;
+
+const OpcoesFiltro = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 10px;
+`;
+
+const FiltroOpcao = styled.button`
+  padding: 8px 12px;
+  border: 1px solid #ff69b4;
+  border-radius: 8px;
+  background-color: #fff;
+  cursor: pointer;
+  color: #ff69b4;
+  font-weight: 500;
+
+  &:hover {
+    background-color: #ff69b4;
+    color: #fff;
+  }
+`;
+
+const ListaNotificacoes = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-height: 250px;
+  overflow-y: auto;
+`;
+
+const NotificacaoItem = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  background-color: #ffe4ec;
+  padding: 10px 15px;
+  border-radius: 10px;
+`;
+
+const IconeNotificacao = styled.img`
+  width: 35px;
+  height: 35px;
+`;
+
+const MensagemNotificacao = styled.span`
+  font-size: 16px;
+  color: #333333ff;
+`;
+
+/* ===== FOOTER ===== */
+const Footer = styled.div`
+  background-color: #ffc9e9;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px 80px;
+  border: 3px solid #6c4539;
   width: 100%;
   margin-top: 50px;
+  flex-wrap: wrap;
+
+  @media (max-width: 768px) {
+    padding: 20px;
+  }
 `;
 
 const ConteudoFooter = styled.div`
@@ -334,50 +370,40 @@ const ConteudoFooter = styled.div`
   max-width: 1200px;
 `;
 
+const Coluna = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+  min-width: 200px;
+`;
+
 const FooterLink = styled.a`
   font-size: 15px;
   color: #6c4539;
   text-decoration: none;
   font-weight: bold;
-  border: 1px #FFC9E9;
-  display: inline-block;
-  line-height: normal;
-  text-decoration: none;
   margin: 10px 0;
   text-align: center;
+
   &:hover {
-    background-color: transparent;
-    background-clip: text;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: hsl(300, 99%, 64%);
-    cursor: pointer;
+    color: hsl(300, 99%, 64%);
     transform: scale(1.1);
   }
-`;
-
-const Coluna = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center; 
-  flex: 1;
-  min-width: 200px;
 `;
 
 const SocialIcons = styled.div`
   display: flex;
   gap: 15px;
   font-size: 22px;
-  width: 20px;
   justify-content: center;
 `;
 
 const Links = styled.div`
   display: flex;
-  gap: 30px;
-  cursor: pointer;
-  color: #6c4539;
   flex-wrap: wrap;
+  gap: 30px;
+  justify-content: center;
   margin-top: 20px;
 `;
 
@@ -396,24 +422,32 @@ const Texto = styled.p`
 
 const Logo = styled.img`
   width: 100px;
-  margin-bottom: 20px;
-  margin-top: 20px;
+  margin: 20px 0;
 `;
 
 const TitleFooter = styled.h3`
-    text-align: center;
-    color: #6c4539;
-    font-style: bold;
-    list-style: none;
-    margin-bottom: 10px;
-    font-size: 40px;
+  text-align: center;
+  color: #6c4539;
+  font-weight: bold;
+  margin-bottom: 10px;
+  font-size: 40px;
+
+  @media (max-width: 768px) {
+    font-size: 28px;
+  }
 `;
 
+/* ===== GLOBAL STYLE ===== */
 const GlobalStyle = createGlobalStyle`
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Times New Roman', Times, serif;
+  }
+
   ::-webkit-scrollbar {
     width: 8px;
-    max-height: 400px;
-    overflow-y: auto;
   }
   ::-webkit-scrollbar-track {
     background: #ffe4ec;
@@ -429,42 +463,45 @@ const GlobalStyle = createGlobalStyle`
 `;
 
 export {
-    Background,
-    Header,
-    LogoContainer,
-    ImgLogo,
-    SearchBar,
-    Menu,
-    MenuLink,
-    BotaoSair,
-    PerfilLink,
-    NoticacaoLink,
-    Perfil,
-    Noticacao,
-    Sair,
-    Icons,
-
-    Title,
-    PerfilContainer,
-    ImgPerfilGrande,
-    NomePerfil,
-    IconeConteiner,
-    IconeImg,
-    Icones,
-    LinhaSeparadora,
-    VistoContainer,
-    ImgVisto,
-    VistoTexto,
-
-    Footer,
-    ConteudoFooter,
-    Coluna,
-    SocialIcons,
-    FooterLink,
-    Links,
-    Logo,
-    Direitos,
-    TitleFooter,
-    Texto,
-    GlobalStyle
-  };
+  Background,
+  Header,
+  LogoContainer,
+  ImgLogo,
+  SearchBar,
+  Menu,
+  MenuLink,
+  BotaoSair,
+  PerfilLink,
+  NoticacaoLink,
+  Perfil,
+  Noticacao,
+  Sair,
+  Icons,
+  Title,
+  PerfilContainer,
+  ImgPerfilGrande,
+  NomePerfil,
+  IconeConteiner,
+  IconeTexto,
+  Icones,
+  Footer,
+  ConteudoFooter,
+  Coluna,
+  SocialIcons,
+  FooterLink,
+  Links,
+  Logo,
+  Direitos,
+  TitleFooter,
+  Texto,
+  GlobalStyle,
+  NotificacoesContainer,
+  FiltroNotificacoes,
+  FiltroBotao,
+  OpcoesFiltro,
+  FiltroOpcao,
+  ListaNotificacoes,
+  NotificacaoItem,
+  IconeNotificacao,
+  MensagemNotificacao,
+};

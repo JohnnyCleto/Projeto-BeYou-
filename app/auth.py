@@ -5,8 +5,8 @@ from fastapi import Depends, HTTPException, status, APIRouter
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
 from app.config import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
-from app.models import CadastroModel, LoginModel, TokenData
-from app import crud
+from app.models.models import CadastroModel, LoginModel, TokenData
+from app.crud import crud_mongo
 import os
 
 # =========================
@@ -67,7 +67,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
     except JWTError:
         raise credentials_exception
 
-    user = await crud.buscar_usuario(token_data.id)
+    user = await crud_mongo.buscar_usuario(token_data.id)
     if not user:
         raise credentials_exception
     user["_id"] = str(user["_id"])
@@ -91,7 +91,7 @@ async def cadastro_usuario(dados: CadastroModel):
     """
     Endpoint para cadastro de usuário
     """
-    existing_user = await crud.buscar_usuario_por_email(dados.email)
+    existing_user = await crud_mongo.buscar_usuario_por_email(dados.email)
     if existing_user:
         raise HTTPException(status_code=409, detail="E-mail já cadastrado")
 
@@ -103,7 +103,7 @@ async def cadastro_usuario(dados: CadastroModel):
         "role": "user",
         "criadoEm": datetime.utcnow(),
     }
-    inserted_user = await crud.criar_usuario(user_dict)
+    inserted_user = await crud_mongo.criar_usuario(user_dict)
     inserted_user["_id"] = str(inserted_user["_id"])
     return {"message": "Usuário cadastrado com sucesso", "id": inserted_user["_id"]}
 
@@ -112,7 +112,7 @@ async def login_usuario(dados: LoginModel):
     """
     Endpoint para login de usuário
     """
-    user = await crud.buscar_usuario_por_email(dados.email)
+    user = await crud_mongo.buscar_usuario_por_email(dados.email)
     if not user or not verify_password(dados.senha, user["senha"]):
         raise HTTPException(status_code=401, detail="E-mail ou senha inválidos")
 

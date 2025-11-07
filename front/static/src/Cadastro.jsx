@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
 import {
   BackgroundImage,
   Formulario,
@@ -13,9 +12,6 @@ import {
   BotaoCadastrar
 } from "./components/cadastroestrutura";
 
-// Endpoint correto do backend
-const API_URL = "http://localhost:8000/api/auth";
-
 const Cadastro = () => {
   const [formData, setFormData] = useState({
     nome: "",
@@ -25,134 +21,52 @@ const Cadastro = () => {
     concordo: false,
   });
 
-  const navigate = useNavigate();
+  const navigate = useNavigate(); 
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setFormData(prev => ({
-      ...prev,
+    setFormData({
+      ...formData,
       [name]: type === "checkbox" ? checked : value,
-    }));
+    });
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-
-    // Validações front-end
     if (formData.senha !== formData.confirmarSenha) {
-      alert("As senhas não coincidem.");
+      alert("As senhas não coincidem");
       return;
     }
-
-    if (!formData.concordo) {
-      alert("Você deve concordar com os termos de uso.");
-      return;
-    }
-
-    try {
-      const dadosParaAPI = {
-        nome: formData.nome,
-        email: formData.email,
-        senha: formData.senha,
-      };
-
-      const response = await axios.post(`${API_URL}/cadastro`, dadosParaAPI);
-
-      if (response.status === 201 || response.status === 200) {
-        alert("Cadastro realizado com sucesso! Redirecionando para o Login.");
-        navigate("/login");
-      } else {
-        alert("Erro inesperado ao cadastrar. Tente novamente.");
-      }
-
-    } catch (error) {
-      console.error("Erro no cadastro:", error);
-
-      if (error.response) {
-        switch (error.response.status) {
-          case 404:
-            alert("Endpoint de cadastro não encontrado. Verifique o backend.");
-            break;
-          case 409:
-            alert("E-mail já cadastrado. Tente fazer login.");
-            break;
-          case 422:
-            alert("Dados inválidos. Verifique os campos e tente novamente.");
-            break;
-          default:
-            alert("Erro ao realizar cadastro. Tente novamente.");
-        }
-      } else {
-        alert("Erro de rede ou servidor. Verifique se o backend está rodando.");
-      }
-    }
+    alert("Cadastro realizado com sucesso!");
+    navigate("/login");
   };
 
   return (
     <BackgroundImage>
       <Formulario>
-        <Title>Cadastro</Title>
-        <form onSubmit={handleSubmit}>
+      <Title>Cadastro</Title>
+      <form onSubmit={handleSubmit}>
 
-          <label htmlFor="nome"><b>Nome</b></label>
-          <Input
-            type="text"
-            placeholder="Digite seu nome"
-            name="nome"
-            required
-            value={formData.nome}
-            onChange={handleChange}
-          />
+        <label htmlFor="nome"><b>Nome</b></label>
+        <Input type="text" placeholder="Digite seu nome" name="nome" required value={formData.nome} onChange={handleChange} />
 
-          <label htmlFor="email"><b>E-mail</b></label>
-          <Input
-            type="email"
-            placeholder="Digite seu e-mail"
-            name="email"
-            required
-            value={formData.email}
-            onChange={handleChange}
-          />
+        <label htmlFor="email"><b>E-mail</b></label>
+        <Input type="text" placeholder="Digite seu e-mail" name="email" required value={formData.email} onChange={handleChange} />
+        
+        <label htmlFor="senha"><b>Senha</b></label>
+        <Input type="password" placeholder="Digite sua senha" name="senha" required value={formData.senha} onChange={handleChange} />
 
-          <label htmlFor="senha"><b>Senha</b></label>
-          <Input
-            type="password"
-            placeholder="Digite sua senha"
-            name="senha"
-            required
-            value={formData.senha}
-            onChange={handleChange}
-          />
+        <label htmlFor="confirmarSenha"><b>Confirmar senha</b></label>
+        <Input type="password" placeholder="Confirme sua senha" name="confirmarSenha" required value={formData.confirmarSenha} onChange={handleChange} />
 
-          <label htmlFor="confirmarSenha"><b>Confirmar senha</b></label>
-          <Input
-            type="password"
-            placeholder="Confirme sua senha"
-            name="confirmarSenha"
-            required
-            value={formData.confirmarSenha}
-            onChange={handleChange}
-          />
 
-          <Checkbox>
-            <CheckboxInput
-              type="checkbox"
-              id="concordo"
-              name="concordo"
-              required
-              checked={formData.concordo}
-              onChange={handleChange}
-            />
-            <CheckboxLabel htmlFor="concordo">
-              Li e concordo com os{" "}
-              <CheckboxLink onClick={() => navigate("/TermosdeUso")} target="_blank">
-                termos de uso
-              </CheckboxLink>
-            </CheckboxLabel>
-          </Checkbox>
+        <Checkbox>
+          <CheckboxInput type="checkbox" id="concordo" name="concordo" required checked={formData.concordo} onChange={handleChange} />
+          <CheckboxLabel htmlFor="concordo">Li e concordo com os <CheckboxLink onClick={() => navigate("/TermosdeUso")} target="_blank">termos de uso</CheckboxLink></CheckboxLabel>
+        </Checkbox>
 
-          <BotaoCadastrar type="submit">Cadastrar</BotaoCadastrar>
-        </form>
+        <BotaoCadastrar type="submit">Cadastrar</BotaoCadastrar>
+      </form>
       </Formulario>
     </BackgroundImage>
   );

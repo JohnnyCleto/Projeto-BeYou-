@@ -1,7 +1,7 @@
 # app/routes/pedidos.py
 from fastapi import APIRouter, HTTPException, Depends, status
-from app import crud
-from app.models import PedidoIn, PedidoOut
+from app.crud import crud_mongo
+from app.models.models import PedidoIn, PedidoOut
 from app.auth import get_current_user, require_roles
 from bson import ObjectId
 
@@ -13,7 +13,7 @@ async def criar_pedido(pedido: PedidoIn, current_user: dict = Depends(get_curren
     # Verifica que o usuário que cria o pedido corresponde ao token (ou admin)
     if str(current_user.get("_id")) != pedido.usuarioId and current_user.get("role") != "admin":
         raise HTTPException(status_code=403, detail="Você só pode criar pedidos para seu próprio usuário")
-    novo = await crud.criar_pedido(pedido.dict())
+    novo = await crud_mongo.criar_pedido(pedido.dict())
     novo["_id"] = str(novo["_id"])
     return novo
 
@@ -22,19 +22,19 @@ async def criar_pedido(pedido: PedidoIn, current_user: dict = Depends(get_curren
 async def listar_pedidos(usuarioId: str, current_user: dict = Depends(get_current_user)):
     # usuário só pode listar seus pedidos; lojas podem listar pedidos da sua loja; admin pode listar tudo
     if current_user.get("role") == "admin":
-        pedidos = await crud.listar_pedidos_por_usuario(usuarioId)
+        pedidos = await crud_mongo.listar_pedidos_por_usuario(usuarioId)
         return pedidos
     if current_user.get("role") == "loja":
         # se role loja, deve passar lojaId igual ao id da loja — depende de como você modela lojas
         # aqui vamos permitir listar pedidos por loja se o token pertence à loja
         if str(current_user.get("_id")) != usuarioId:
             raise HTTPException(status_code=403, detail="Lojas só podem ver pedidos da própria loja")
-        pedidos = await crud.listar_pedidos_por_loja(usuarioId)
+        pedidos = await crud_mongo.listar_pedidos_por_loja(usuarioId)
         return pedidos
     # role user: só pode ver próprios pedidos
     if str(current_user.get("_id")) != usuarioId:
         raise HTTPException(status_code=403, detail="Só é possível ver seus próprios pedidos")
-    pedidos = await crud.listar_pedidos_por_usuario(usuarioId)
+    pedidos = await crud_mongo.listar_pedidos_por_usuario(usuarioId)
     return pedidos
 
 
@@ -42,7 +42,7 @@ async def listar_pedidos(usuarioId: str, current_user: dict = Depends(get_curren
 async def buscar_pedido(pedidoId: str, current_user: dict = Depends(get_current_user)):
     if not ObjectId.is_valid(pedidoId):
         raise HTTPException(status_code=400, detail="ID inválido")
-    pedido = await crud.buscar_pedido(pedidoId)
+    pedido = await crud_mongo.buscar_pedido(pedidoId)
     if not pedido:
         raise HTTPException(status_code=404, detail="Pedido não encontrado")
     # restrição: somente dono do pedido, loja responsável ou admin

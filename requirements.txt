@@ -1,15 +1,34 @@
+# -------------------------------
+# Backend BeYou — FastAPI + MongoDB + MySQL
+# -------------------------------
+
+# Framework principal
 fastapi==0.115.0
 uvicorn[standard]==0.30.6
+
+# MongoDB
 motor==3.5.1
 pymongo==4.8.0
+
+# ORM + MySQL
+SQLAlchemy==2.0.36
+aiomysql==0.2.0
+PyMySQL==1.1.1
+mysqlclient==2.2.5
+
+# Validação e segurança
 pydantic==2.9.2
-python-dotenv==1.0.1
 email-validator==2.1.1
 passlib[bcrypt]==1.7.4
 bcrypt==4.0.1
-python-jose[cryptography]
 argon2-cffi==21.3.0
+python-jose[cryptography]
+
+# Utilitários
+python-dotenv==1.0.1
 httpx==0.24.1
+
+# Testes
 pytest==7.4.0
 pytest-asyncio==0.21.0
 pytest-cov==4.1.0

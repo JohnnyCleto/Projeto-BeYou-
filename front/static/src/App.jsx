@@ -1,21 +1,21 @@
 import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
-import BemVindo from "./BemVindo.jsx"; 
-import Cadastro from "./Cadastro.jsx";
-import Cadastroloja from "./Cadastroloja.jsx";
-import Carrinho from "./Carrinho.jsx";
+import BemVindo from "./bemvindo.jsx"; 
+import Cadastro from "./cadastro.jsx";
+import Cadastroloja from "./cadastroloja.jsx";
+import Carrinho from "./carrinho.jsx";
 import ConfiguracaoPerfil from "./configuracao_perfil.jsx";
-import FAvoritosPerfil from "./FAvoritosPerfil.jsx";
-import Login from "./Login.jsx";
-import Loginloja from "./Loginloja.jsx";
-import MeuPerfil from "./MeuPerfil.jsx";
+import FAvoritosPerfil from './FAvoritosPerfil';
+import Login from "./login.jsx";
+import Loginloja from "./loginloja.jsx";
+import MeuPerfil from "./meuperfil.jsx";
 import NotificacoesPerfil from "./notificacoes_perfil.jsx"; 
-import Inicial from "./PaginaInicial.jsx"; 
-import SearchPage from "./Pesquisar.jsx";
-import DadosPerfil from "./DadosPerfil.jsx";
-import Agendamentos from "./Agendamentos.jsx";
-import Dashboard from "./Dashboard.jsx";
+import Inicial from "./paginainicial.jsx"; 
+import SearchPage from "./pesquisar.jsx";
+import DadosPerfil from "./dadosperfil.jsx";
+import Agendamentos from "./agendamentos.jsx";
+import Dashboard from "./dashboard.jsx";
 import Gestao from "./gestao.jsx";
 
 function App() {
@@ -32,7 +32,7 @@ function App() {
         <Route path="/loginloja" element={<Loginloja />} />
         <Route path="/notificacoes_perfil" element={<NotificacoesPerfil />} />
         <Route path="/configuracao_perfil" element={<ConfiguracaoPerfil />} />
-        <Route path="/FAvoritos_perfil" element={<FAvoritosPerfil />} />
+      <Route path="/FAvoritosPerfil" element={<FAvoritosPerfil />} />
         <Route path="/Pesquisar" element={<SearchPage />} />
         <Route path="/dadosperfil" element={<DadosPerfil />} />
         <Route path="/Agendamentos" element={<Agendamentos />} />

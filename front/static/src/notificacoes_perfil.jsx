@@ -128,7 +128,7 @@ function NotificacoesPerfil() {
           <MenuLink onClick={() => navigate("/Carrinho")}>Meu Carrinho</MenuLink>
           <MenuLink onClick={() => navigate("/Pesquisar")}>Pesquisar</MenuLink>
           <MenuLink onClick={() => navigate("/Agendamentos")}>Agendamentos</MenuLink>
-          <MenuLink onClick={() => navigate("/FAvoritos_perfil")}>Favoritos</MenuLink>
+          <MenuLink onClick={() => navigate("/FAvoritosPerfil")}>Favoritos</MenuLink>
         </Menu>
         <SearchBar type="text" placeholder="Busque por item ou loja" />
         <Icons>

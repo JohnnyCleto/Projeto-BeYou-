@@ -1,3 +1,4 @@
+# app/crud/crud.py
 from app.db import db, get_db
 from bson import ObjectId
 from datetime import datetime
@@ -34,7 +35,7 @@ async def deletar_usuario(id: str):
     result = await db.usuarios.delete_one({"_id": ObjectId(id)})
     return result.deleted_count
 
-async def buscar_usuario_por_email(email: str):
+async def buscar_por_email(email: str):
     db = get_db()
     return await db.usuarios.find_one({"email": email})
 
