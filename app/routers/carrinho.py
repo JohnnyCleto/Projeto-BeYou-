@@ -2,7 +2,7 @@
 from fastapi import APIRouter, HTTPException, Depends, status
 from app.crud import crud_mongo
 from app.models.models import CarrinhoIn, CarrinhoOut
-from app.auth import get_current_user, require_roles
+from app.auth import get_current_user
 from bson import ObjectId
 
 router = APIRouter(prefix="/carrinho", tags=["Carrinho"])

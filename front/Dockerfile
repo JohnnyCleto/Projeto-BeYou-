@@ -1,48 +1,42 @@
-# ==============================
-# Etapa 2 — Build do Frontend
-# ==============================
+# ============================== 
 # Etapa 1 — Build do Frontend (React + Vite)
+# ==============================
 FROM node:20-alpine AS frontend-builder
 
-# Diretório exclusivo para o build do frontend
 WORKDIR /app
 
-# Copia os arquivos de dependência do React/Vite
-COPY static/package.json ./
-COPY static/package-lock.json ./
+# 🔹 Copia apenas dependências primeiro
+COPY package.json ./ 
+COPY package-lock.json ./ 
 
-# Instala as dependências do frontend
+# Instala dependências
 RUN npm install
 
-# Copia todos os arquivos do frontend necessários para o build
-# Inclui src/, public/, e o index.html exigido pelo Vite
-COPY static/public ./public
-COPY static/src ./src
-COPY static/index.html ./index.html
-COPY static/vite.config.* ./   
+# Copia todos os arquivos do frontend
+COPY public ./public
+COPY src ./src
+COPY index.html ./index.html
+COPY vite.config.* ./
 
-# Gera o build de produção do Vite (pasta /dist)
+# Build de produção do Vite
 RUN npm run build
 
+# ============================== 
+# Etapa 2 — Servindo com Nginx
 # ==============================
-# Etapa 3 — Servindo com Nginx
-# ==============================
-# Usa a imagem oficial do Nginx
 FROM nginx:alpine
 
-# Remove o arquivo de configuração padrão do Nginx
+# Remove configuração padrão
 RUN rm /etc/nginx/conf.d/default.conf
 
-# Copia os arquivos de build da etapa anterior para o diretório padrão do Nginx
-# O Nginx serve por padrão o conteúdo de /usr/share/nginx/html
+# Copia build da etapa anterior
 COPY --from=frontend-builder /app/dist /usr/share/nginx/html
 
-# Copia o arquivo de configuração customizado do Nginx
-# OBS: Você deve criar o arquivo 'nginx.conf' na mesma pasta deste Dockerfile
+# Copia configuração customizada
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-# Expõe a porta padrão do Nginx
+# Expõe porta do Nginx
 EXPOSE 8080
 
-# Comando padrão do Nginx para iniciar o servidor
+# Comando padrão do Nginx
 CMD ["nginx", "-g", "daemon off;"]

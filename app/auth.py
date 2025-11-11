@@ -1,122 +1,107 @@
-# app/auth.py
-from passlib.context import CryptContext
-from datetime import timedelta, datetime
-from fastapi import Depends, HTTPException, status, APIRouter
-from fastapi.security import OAuth2PasswordBearer
-from jose import JWTError, jwt
-from app.config import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
-from app.models.models import CadastroModel, LoginModel, TokenData
+from fastapi import APIRouter, Depends, HTTPException, status
+from app.models.usuario import UsuarioIn, LoginModel
 from app.crud import crud_mongo
-import os
+from app.auth_bearer import JWTBearer
+from app.core.auth_utils import (
+    hash_password,
+    verify_password,
+    create_access_token,
+    get_current_user
+)
 
-# =========================
-# Configurações de token
-# =========================
-SECRET_KEY = os.getenv("SECRET_KEY", SECRET_KEY or "changeme")
-ALGORITHM = os.getenv("ALGORITHM", ALGORITHM or "HS256")
-ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", ACCESS_TOKEN_EXPIRE_MINUTES or 60))
+router = APIRouter(
+    prefix="/api/auth",
+    tags=["Auth"]
+)
 
-# =========================
-# Contexto de criptografia
-# =========================
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
-
-router = APIRouter()
-
-# =========================
-# Funções utilitárias
-# =========================
-def hash_password(password: str) -> str:
+# ==========================================
+# Rota: Retorna usuário logado (token decodificado)
+# ==========================================
+@router.get("/me", dependencies=[Depends(JWTBearer())])
+async def get_logged_user(user=Depends(get_current_user)):
     """
-    Hash da senha com bcrypt.
-    Trunca para 72 bytes para evitar erros do bcrypt.
+    Retorna os dados do usuário autenticado com base no token JWT.
     """
-    # Bcrypt suporta no máximo 72 bytes
-    pw_bytes = password.encode("utf-8")[:72]
-    return pwd_context.hash(pw_bytes)
-
-def verify_password(plain_password: str, hashed_password: str) -> bool:
-    pw_bytes = plain_password.encode("utf-8")[:72]
-    return pwd_context.verify(pw_bytes, hashed_password)
-
-def create_access_token(data: dict, expires_minutes: int | None = None) -> str:
-    """
-    Cria token JWT
-    """
-    to_encode = data.copy()
-    expire = datetime.utcnow() + timedelta(minutes=expires_minutes or ACCESS_TOKEN_EXPIRE_MINUTES)
-    to_encode.update({"exp": expire})
-    return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
-
-async def get_current_user(token: str = Depends(oauth2_scheme)):
-    """
-    Recupera usuário a partir do token JWT
-    """
-    credentials_exception = HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Token inválido ou expirado",
-        headers={"WWW-Authenticate": "Bearer"},
-    )
-    try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        user_id = payload.get("id")
-        if not user_id:
-            raise credentials_exception
-        token_data = TokenData(id=user_id, email=payload.get("email"), role=payload.get("role"))
-    except JWTError:
-        raise credentials_exception
-
-    user = await crud_mongo.buscar_usuario(token_data.id)
-    if not user:
-        raise credentials_exception
-    user["_id"] = str(user["_id"])
     return user
 
-def require_roles(*allowed_roles):
-    """
-    Dependency para verificar roles do usuário.
-    """
-    async def role_checker(user = Depends(get_current_user)):
-        if user.get("role") not in allowed_roles:
-            raise HTTPException(status_code=403, detail="Permissão negada")
-        return user
-    return role_checker
 
-# =========================
-# Endpoints
-# =========================
-@router.post("/cadastro", status_code=201)
-async def cadastro_usuario(dados: CadastroModel):
+# ==========================================
+# Rota: Cadastro de Usuário
+# ==========================================
+@router.post("/cadastro")
+async def cadastro(dados: UsuarioIn):
     """
-    Endpoint para cadastro de usuário
-    """
-    existing_user = await crud_mongo.buscar_usuario_por_email(dados.email)
-    if existing_user:
-        raise HTTPException(status_code=409, detail="E-mail já cadastrado")
-
-    hashed_pw = hash_password(dados.senha)
-    user_dict = {
-        "nome": dados.nome,
-        "email": dados.email,
-        "senha": hashed_pw,
-        "role": "user",
-        "criadoEm": datetime.utcnow(),
-    }
-    inserted_user = await crud_mongo.criar_usuario(user_dict)
-    inserted_user["_id"] = str(inserted_user["_id"])
-    return {"message": "Usuário cadastrado com sucesso", "id": inserted_user["_id"]}
-
-@router.post("/login")
-async def login_usuario(dados: LoginModel):
-    """
-    Endpoint para login de usuário
+    Cria um novo usuário no sistema, validando se o e-mail já existe.
     """
     user = await crud_mongo.buscar_usuario_por_email(dados.email)
-    if not user or not verify_password(dados.senha, user["senha"]):
-        raise HTTPException(status_code=401, detail="E-mail ou senha inválidos")
+    if user:
+        raise HTTPException(
+            status_code=409,
+            detail="E-mail já cadastrado"
+        )
 
-    access_token = create_access_token(
-        data={"id": str(user["_id"]), "email": user["email"], "role": user.get("role", "user")}
-    )
-    return {"access_token": access_token, "token_type": "bearer"}
+    dados.senha = hash_password(dados.senha)
+    novo_usuario = await crud_mongo.criar_usuario(dados.model_dump())
+
+    return {
+        "message": "Usuário criado",
+        "id": str(novo_usuario["_id"])
+    }
+
+
+# ==========================================
+# Rota: Login de Usuário
+# ==========================================
+@router.post("/login")
+async def login(dados: LoginModel):
+    """
+    Autentica o usuário com e-mail e senha, retornando o token JWT.
+    """
+    usuario = await crud_mongo.buscar_usuario_por_email(dados.email)
+    if not usuario or not verify_password(dados.senha, usuario["senha"]):
+        raise HTTPException(
+            status_code=401,
+            detail="Credenciais inválidas"
+        )
+
+    token = create_access_token({
+        "id": str(usuario["_id"]),
+        "email": usuario["email"]
+    })
+
+    return {
+        "access_token": token,
+        "token_type": "bearer"
+    }
+
+
+# ==========================================
+# Rota: Obter Usuário Logado (via token JWT)
+# ==========================================
+@router.get("/perfil")
+async def obter_usuario_logado(user=Depends(get_current_user)):
+    """
+    Retorna as informações completas do usuário autenticado via token JWT.
+    """
+    return user
+
+
+# ==========================================
+# Decorator: Requer Permissão de Cargo
+# ==========================================
+def require_roles(*roles):
+    """
+    Verifica se o usuário autenticado possui um dos cargos permitidos.
+    """
+    def wrapper(current_user=Depends(get_current_user)):
+        if current_user.get("role") not in roles:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Permissão negada"
+            )
+        return current_user
+
+    return wrapper
+# ==========================================
+# Fim do arquivo app/auth.py
+# ==========================================

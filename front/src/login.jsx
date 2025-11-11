@@ -12,7 +12,7 @@ import {
   InputLink
 } from "./components/loginestrutura";
 
-// URL base do backend corrigida para o endpoint correto
+// ✅ URL base do backend ajustada para FastAPI + MongoDB (porta 8000)
 const API_URL = "http://localhost:8000/api/auth";
 
 const Login = () => {
@@ -43,12 +43,22 @@ const Login = () => {
     }
 
     try {
-      // Envia credenciais para o backend no endpoint correto
-      const response = await axios.post(`${API_URL}/login`, {
-        email: formData.email,
-        senha: formData.senha,
-      });
+      // ✅ Envia credenciais para FastAPI com Content-Type: application/json
+      const response = await axios.post(
+        `${API_URL}/login`,
+        {
+          email: formData.email,
+          senha: formData.senha,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+          withCredentials: false, // garante compatibilidade CORS
+        }
+      );
 
+      // ✅ Verifica se há token no retorno
       if (response.status === 200 && response.data.access_token) {
         // Salva token JWT no localStorage
         localStorage.setItem("token", response.data.access_token);
@@ -76,8 +86,10 @@ const Login = () => {
           default:
             alert("Erro ao realizar login. Tente novamente.");
         }
-      } else {
+      } else if (error.request) {
         alert("Erro de rede. Verifique se o backend está rodando.");
+      } else {
+        alert(`Erro inesperado: ${error.message}`);
       }
     }
   };
@@ -92,6 +104,7 @@ const Login = () => {
             type="email"
             placeholder="Digite seu e-mail"
             name="email"
+            id="email"
             required
             value={formData.email}
             onChange={handleChange}
@@ -102,6 +115,7 @@ const Login = () => {
             type="password"
             placeholder="Digite sua senha"
             name="senha"
+            id="senha"
             required
             value={formData.senha}
             onChange={handleChange}

@@ -2,23 +2,23 @@
 from pydantic import BaseModel, Field, EmailStr, ConfigDict
 from typing import Optional, List
 from datetime import datetime
-from typing import Optional
 
+# -------------------------
+# Usuário
+# -------------------------
 class Usuario(BaseModel):
     id: Optional[str] = None
     nome: str
     email: EmailStr
     senha: str
 
-
 # ---- Shared / output helper ----
 class IDModel(BaseModel):
     id: Optional[str] = Field(None, alias="_id")
-
     model_config = ConfigDict(populate_by_name=True, from_attributes=True)
 
 # -------------------------
-# Usuário
+# Entrada e saída de usuário
 # -------------------------
 class UsuarioIn(BaseModel):
     nome: str

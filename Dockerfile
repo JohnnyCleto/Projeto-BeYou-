@@ -1,55 +1,62 @@
-# ===============================
-# Backend — FastAPI + MongoDB + MySQL
-# ===============================
-FROM python:3.12-slim
+# ============================================================
+# Etapa 1 — Build do Frontend (React)
+# ============================================================
+FROM node:20-alpine AS frontend-builder
+
+# Define diretório de trabalho
+WORKDIR /front
+
+# Copia apenas arquivos necessários primeiro (melhora cache)
+COPY front/package*.json ./
+
+# Instala dependências
+RUN npm install
+
+# Copia o restante do código do frontend
+COPY front/ ./
+
+# Gera build de produção
+RUN npm run build
+
+# ============================================================
+# Etapa 2 — Backend (FastAPI)
+# ============================================================
+FROM python:3.12-slim AS backend
 
 # Define diretório de trabalho
 WORKDIR /app
 
-# -------------------------------------------------------
-# Instala dependências do sistema (MySQL + SSL + build)
-# -------------------------------------------------------
+# Evita geração de pyc e melhora logs
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+
+# Atualiza sistema e instala dependências básicas
 RUN apt-get update && apt-get install -y \
     build-essential \
-    default-libmysqlclient-dev \
-    gcc \
-    pkg-config \
-    ca-certificates \
+    libpq-dev \
     curl \
-    dnsutils \
-    && update-ca-certificates \
+    git \
+    pkg-config \
+    default-libmysqlclient-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# -------------------------------------------------------
-# Copia dependências e instala pacotes Python
-# -------------------------------------------------------
-COPY requirements.txt .
 
-# Instala dependências (inclui drivers MongoDB e MySQL)
-RUN pip install --no-cache-dir -r requirements.txt \
-    && pip install --no-cache-dir \
-        aiomysql \
-        pymysql \
-        mysqlclient
+    
+# Copia arquivos do backend
+COPY ./app ./app
+COPY ./requirements.txt ./requirements.txt
 
-# -------------------------------------------------------
-# Copia o restante da aplicação
-# -------------------------------------------------------
-COPY ./app /app/app
+# Instala dependências do Python
+RUN pip install --no-cache-dir -r requirements.txt
 
-# -------------------------------------------------------
-# Define a variável de ambiente do MongoDB
-# (recomendado sobrescrever no docker-compose ou .env)
-# -------------------------------------------------------
-ENV MONGO_URI="mongodb+srv://joaovitorcleto129_db_user:26052010o@cluster0.rb0y6ys.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
-ENV MONGO_DB="beyou"
+# Copia o build do frontend gerado na etapa anterior
+COPY --from=frontend-builder /front/dist ./app/frontstatic
 
-# -------------------------------------------------------
-# Expõe a porta padrão do FastAPI
-# -------------------------------------------------------
+# Cria diretório de uploads
+RUN mkdir -p /app/app/uploads
+
+# Expõe porta do FastAPI
 EXPOSE 8000
 
-# -------------------------------------------------------
-# Comando para iniciar o servidor
-# -------------------------------------------------------
+# Define comando padrão
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
