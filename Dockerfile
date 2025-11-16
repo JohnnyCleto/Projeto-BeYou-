@@ -4,16 +4,16 @@
 FROM node:20-alpine AS frontend-builder
 
 # Define diretório de trabalho
-WORKDIR /front
+WORKDIR /frontstatic
 
 # Copia apenas arquivos necessários primeiro (melhora cache)
-COPY front/package*.json ./
+COPY frontstatic/package*.json ./
 
 # Instala dependências
 RUN npm install
 
 # Copia o restante do código do frontend
-COPY front/ ./
+COPY frontstatic/ ./
 
 # Gera build de produção
 RUN npm run build
@@ -50,7 +50,7 @@ COPY ./requirements.txt ./requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copia o build do frontend gerado na etapa anterior
-COPY --from=frontend-builder /front/dist ./app/frontstatic
+COPY --from=frontend-builder /frontstatic/dist ./app/frontstatic
 
 # Cria diretório de uploads
 RUN mkdir -p /app/app/uploads

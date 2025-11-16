@@ -9,6 +9,9 @@ from app.core.auth_utils import (
     get_current_user
 )
 
+# -------------------------
+# Router FastAPI
+# -------------------------
 router = APIRouter(
     prefix="/api/auth",
     tags=["Auth"]
@@ -102,6 +105,7 @@ def require_roles(*roles):
         return current_user
 
     return wrapper
+
 # ==========================================
 # Fim do arquivo app/auth.py
 # ==========================================

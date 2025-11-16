@@ -1,13 +1,14 @@
+# main.py
+import os
+from uuid import uuid4
 from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
-import os
-from uuid import uuid4
 
 # Routers
-from app import auth
 from app.routers import usuario_routes, carrinho, pedidos
+from app.auth import router as auth_router_mongo   # router do app/auth.py
 
 # Conexões com bancos
 from app import db as db_mongo
@@ -50,6 +51,7 @@ async def startup_event():
     except Exception as e:
         print(f"❌ Erro MySQL: {e}")
 
+
 @app.on_event("shutdown")
 async def shutdown_event():
     """Fecha conexões com bancos."""
@@ -61,11 +63,12 @@ async def shutdown_event():
 # Rotas da API
 # ============================================================
 
-# MongoDB
-app.include_router(auth.router)
+# ✅ Autenticação (MongoDB) e usuários — usar apenas esse router de auth
+# main.py
+app.include_router(auth_router_mongo, tags=["Auth"])
 app.include_router(usuario_routes.router, prefix="/api/usuarios", tags=["Usuários"])
 
-# MySQL (dados relacionais)
+# Carrinho e pedidos (MySQL)
 app.include_router(carrinho.router, prefix="/api/carrinho", tags=["Carrinho"])
 app.include_router(pedidos.router, prefix="/api/pedidos", tags=["Pedidos"])
 
@@ -75,11 +78,13 @@ app.include_router(pedidos.router, prefix="/api/pedidos", tags=["Pedidos"])
 FRONTEND_BUILD_DIR = os.path.join(os.path.dirname(__file__), "frontstatic")
 
 if os.path.isdir(FRONTEND_BUILD_DIR):
+    # Monta código-fonte estático
     app.mount(
-        "/static",
-        StaticFiles(directory=os.path.join(FRONTEND_BUILD_DIR, "static")),
-        name="static",
+        "/src",
+        StaticFiles(directory=os.path.join(FRONTEND_BUILD_DIR, "src")),
+        name="src",
     )
+    # Monta SPA e arquivos estáticos
     app.mount("/", StaticFiles(directory=FRONTEND_BUILD_DIR, html=True), name="frontend")
 
     @app.get("/{full_path:path}")
@@ -97,7 +102,7 @@ else:
 # ============================================================
 # Health check
 # ============================================================
-@app.get("/health")
+@app.get("/health", tags=["Health"])
 async def health_check():
     return {
         "status": "ok",
@@ -109,15 +114,15 @@ async def health_check():
     }
 
 # ============================================================
-# Armazenamento e acesso a imagens (upload local)
+# Upload de imagens
 # ============================================================
-
 UPLOAD_DIR = os.path.join(os.path.dirname(__file__), "uploads")
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 app.mount("/uploads", StaticFiles(directory=UPLOAD_DIR), name="uploads")
 
-@app.post("/api/upload-imagem")
+
+@app.post("/api/upload-imagem", tags=["Uploads"])
 async def upload_imagem(imagem: UploadFile = File(...)):
     """
     Rota para upload de imagens.
@@ -137,6 +142,10 @@ async def upload_imagem(imagem: UploadFile = File(...)):
         "arquivo": nome_arquivo,
         "url": url_imagem,
     }
+
+@app.get("/teste")
+async def teste():
+    return {"ok": True}
 
 # ============================================================
 # Fim do arquivo main.py

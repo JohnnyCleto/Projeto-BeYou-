@@ -1,3 +1,5 @@
+version: "3.9"
+
 services:
   # ----------------------------------------
   # MySQL
@@ -7,16 +9,14 @@ services:
     container_name: beyou-mysql
     restart: unless-stopped
     environment:
-      MYSQL_ROOT_PASSWORD: Jo26052010        # ✅ obrigatório para inicialização do root
-      MYSQL_DATABASE: beyou                   # cria DB automaticamente
-      MYSQL_URI: mysql+aiomysql://root:Jo%4026052010@beyou-mysql:3306/beyou
+      MYSQL_ROOT_PASSWORD: Jo@26052010           # obrigatório para inicialização do root
+      MYSQL_DATABASE: beyou                      # cria DB automaticamente
       MYSQL_HOST: beyou-mysql
       MYSQL_PORT: 3306
-      # Removidos MYSQL_USER=root e MYSQL_PASSWORD porque não são permitidos para root
     ports:
-      - "3307:3306"
+      - "3307:3306"                              # mapeia porta externa 3307 para 3306 interna
     volumes:
-      - mysql_data:/var/lib/mysql
+      - mysql_data:/var/lib/mysql                # volume persistente
     networks:
       - beyou-net
     healthcheck:
@@ -49,7 +49,7 @@ services:
       retries: 20
 
   # ----------------------------------------
-  # Backend FastAPI + Frontend Build (Multi-stage)
+  # Backend FastAPI
   # ----------------------------------------
   api:
     build:
@@ -61,21 +61,25 @@ services:
     env_file:
       - .env
     environment:
+      # MongoDB
       MONGO_URI: mongodb+srv://joaovitorcleto129_db_user:26052010o@cluster0.rb0y6ys.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
       MONGO_DB: ${MONGO_DB:-beyou}
+
+      # MySQL
       MYSQL_HOST: beyou-mysql
       MYSQL_PORT: 3306
-      MYSQL_ROOT_PASSWORD: Jo@26052010
       MYSQL_DB: beyou
-      MYSQL_URI: mysql+aiomysql://root:Jo@26052010@beyou-mysql:3306/beyou?ssl_disabled=true
+      MYSQL_ROOT_PASSWORD: Jo@26052010
+      MYSQL_URI: mysql+aiomysql://root:Jo%4026052010@beyou-mysql:3306/beyou
 
-
+      # App
       APP_NAME: BeYou - FastAPI
       PORT: 8000
       REACT_APP_API_URL: http://localhost:8000
+
     volumes:
-      - ./app:/app/app:rw
-      - ./uploads:/app/app/uploads
+      - ./:/app:rw                       # código backend
+      - ./uploads:/app/app/uploads              # uploads
     depends_on:
       mongo:
         condition: service_healthy
@@ -83,7 +87,7 @@ services:
         condition: service_healthy
     ports:
       - "8000:8000"
-    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
     networks:
       - beyou-net
 
@@ -92,16 +96,16 @@ services:
   # ----------------------------------------
   web:
     build:
-      context: ./front
+      context: ./frontstatic
       dockerfile: Dockerfile
     container_name: beyou-frontend
     restart: unless-stopped
     depends_on:
       - api
     ports:
-      - "8888:8080"
+      - "8888:8080"                             # acesso externo à SPA
     volumes:
-      - ./front:/front
+      - ./frontstatic:/frontstatic              # para hot reload ou atualização manual
     networks:
       - beyou-net
 
